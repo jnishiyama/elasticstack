@@ -24,7 +24,7 @@
 from django.conf import settings
 from haystack.backends.elasticsearch_backend import \
         ElasticsearchSearchBackend, ElasticsearchSearchEngine
-
+import elasticsearch
 
 class ConfigurableElasticBackend(ElasticsearchSearchBackend):
     """
