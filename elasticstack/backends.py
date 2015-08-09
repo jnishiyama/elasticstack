@@ -54,6 +54,18 @@ class ConfigurableElasticBackend(ElasticsearchSearchBackend):
             mapping.update({field_class.index_fieldname: field_mapping})
         return (content_field_name, mapping)
 
+    def update(self, index, iterable, commit=True):
+
+        # This fixes django-haystack issue 1126 for unhandled connection issues around build_index() calls
+        # https://github.com/toastdriven/django-haystack/issues/1126
+        try:
+            super(ConfigurableElasticBackend, self).update(index, iterable, commit)
+        except elasticsearch.TransportError as e:
+            if not self.silently_fail:
+                raise
+
+            self.log.error("Failed to add documents to Elasticsearch: %s", e)
+            return
 
 class ConfigurableElasticSearchEngine(ElasticsearchSearchEngine):
     backend = ConfigurableElasticBackend
